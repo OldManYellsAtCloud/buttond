@@ -17,6 +17,8 @@ private:
     FILE* backlight;
     FILE* cpuFrequency;
 
+    FILE* cpuCoreList[3];
+
     void turnOn();
     void turnOff();
 
@@ -36,6 +38,15 @@ private:
     const char* USERSPACE_GOVERNOR {"userspace"};
     const char* LOWEST_CPU_FREQUENCY {"648000"};
     const char* HIGHEST_CPU_FREQUENCY {"1152000"};
+
+    const char* TURN_OFF_CPU_CORE {"0"};
+    const char* TURN_ON_CPU_CORE {"1"};
+
+    const char* CPU_CORE_LIST[3] {
+        "/sys/devices/system/cpu/cpu1/online",
+        "/sys/devices/system/cpu/cpu2/online",
+        "/sys/devices/system/cpu/cpu3/online"
+    };
 
 
 public:

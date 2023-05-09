@@ -13,6 +13,12 @@ void PowerHandler::turnOn()
     fwrite(TURN_ON_TOUCHSCREEN, 1, sizeof(TURN_ON_TOUCHSCREEN) / sizeof(TURN_ON_TOUCHSCREEN[0]), touchScreen);
     fwrite(SWITCH_ON_BACKLIGHT, 1, sizeof(SWITCH_ON_BACKLIGHT) / sizeof(SWITCH_ON_BACKLIGHT[0]), backlight);
     fwrite(HIGHEST_CPU_FREQUENCY, 1, sizeof(HIGHEST_CPU_FREQUENCY) / sizeof(HIGHEST_CPU_FREQUENCY[0]), cpuFrequency);
+
+    for (auto& cpuCore: cpuCoreList){
+        fwrite(TURN_ON_CPU_CORE, 1, sizeof(TURN_ON_CPU_CORE) / sizeof(TURN_ON_CPU_CORE[0]), cpuCore);
+        fflush(cpuCore);
+    }
+
     fflush(backlight);
     fflush(touchScreen);
     fflush(cpuFrequency);
@@ -25,9 +31,15 @@ void PowerHandler::turnOff()
     fwrite(TURN_OFF_TOUCHSCREEN, 1, sizeof(TURN_OFF_TOUCHSCREEN) / sizeof(TURN_OFF_TOUCHSCREEN[0]), touchScreen);
     fwrite(SWITCH_OFF_BACKLIGHT, 1, sizeof(SWITCH_OFF_BACKLIGHT) / sizeof(SWITCH_OFF_BACKLIGHT[0]), backlight);
     fwrite(LOWEST_CPU_FREQUENCY, 1, sizeof(LOWEST_CPU_FREQUENCY) / sizeof(LOWEST_CPU_FREQUENCY[0]), cpuFrequency);
+    for (auto& cpuCore: cpuCoreList){
+        fwrite(TURN_OFF_CPU_CORE, 1, sizeof(TURN_OFF_CPU_CORE) / sizeof(TURN_OFF_CPU_CORE[0]), cpuCore);
+        fflush(cpuCore);
+    }
+
     fflush(touchScreen);
     fflush(backlight);
     fflush(cpuFrequency);
+
     current_state = State::SCREEN_OFF;
 }
 
@@ -50,6 +62,9 @@ PowerHandler::PowerHandler(const std::string& filepath): ButtonHandler{}
     touchScreen = fopen(INHIBIT_TOUCHSCREEN_PATH, "r+");
     backlight = fopen(BACKLIGHT_BL_PATH, "r+");
     cpuFrequency = fopen(CPU_FREQUENCY_PATH, "r+");
+
+    for (uint8_t i {}; i < 3; ++i)
+        cpuCoreList[i] = fopen(CPU_CORE_LIST[i], "r+");
 }
 
 void PowerHandler::run()
@@ -86,5 +101,8 @@ void PowerHandler::run()
     fclose(touchScreen);
     fclose(backlight);
     fclose(cpuFrequency);
+
+    for (auto cpuCore: cpuCoreList)
+        fclose(cpuCore);
 }
 
