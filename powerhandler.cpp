@@ -1,9 +1,10 @@
 #include "powerhandler.h"
-/*#include <iostream>*/
 
+#include <cstdint>
 #include <string.h>
 #include <errno.h>
 #include <poll.h>
+#include <unistd.h>
 #include <linux/input.h>
 #include <linux/input-event-codes.h>
 
@@ -43,7 +44,7 @@ void PowerHandler::turnOff()
     current_state = State::SCREEN_OFF;
 }
 
-PowerHandler::PowerHandler(const std::string& filepath): ButtonHandler{}
+PowerHandler::PowerHandler(const std::string& filepath)
 {
     eventSource = fopen(filepath.c_str(), "r");
     if (!eventSource) {
@@ -69,6 +70,9 @@ PowerHandler::PowerHandler(const std::string& filepath): ButtonHandler{}
 
 void PowerHandler::run()
 {
+    if (!fork())
+        return;
+
     struct pollfd pfd[1];
     pfd[0].fd = fileno(eventSource);
     pfd[0].events = POLLIN;
