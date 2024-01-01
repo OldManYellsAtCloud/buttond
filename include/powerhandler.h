@@ -1,6 +1,7 @@
 #ifndef POWERHANDLER_H
 #define POWERHANDLER_H
 #include "buttonhandler.h"
+#include "settingslib.h"
 
 #include <string>
 
@@ -50,10 +51,10 @@ private:
 
 
 public:
-    PowerHandler(const std::string& buttonPath, const std::string& tsInhibitPath);
+    PowerHandler(SettingsLib* settings);
     ~PowerHandler(){}
 
-    void run();
+    void run(std::stop_token stopToken);
 };
 
 #endif // POWERHANDLER_H

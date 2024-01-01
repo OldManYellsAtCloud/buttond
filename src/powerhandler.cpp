@@ -46,8 +46,11 @@ void PowerHandler::turnOff()
     current_state = State::SCREEN_OFF;
 }
 
-PowerHandler::PowerHandler(const std::string& buttonPath, const std::string& tsInhibitPath)
+PowerHandler::PowerHandler(SettingsLib* settings)
 {
+    auto buttonPath = settings->getValue("events", "power");
+    auto tsInhibitPath = settings->getValue("hw", "ts_inhibit");
+
     eventSource = fopen(buttonPath.c_str(), "r");
     if (!eventSource) {
         ERROR("Could not open {}: {}", buttonPath, strerror(errno));
@@ -72,11 +75,8 @@ PowerHandler::PowerHandler(const std::string& buttonPath, const std::string& tsI
 
 }
 
-void PowerHandler::run()
+void PowerHandler::run(std::stop_token stopToken)
 {
-    if (!fork())
-        return;
-
     struct pollfd pfd[1];
     pfd[0].fd = fileno(eventSource);
     pfd[0].events = POLLIN;
@@ -86,7 +86,7 @@ void PowerHandler::run()
 
     struct input_event event;
 
-    while (!done){
+    while (!stopToken.stop_requested()){
         poll(pfd, nfds, poll_timeout_ms);
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, eventSource);

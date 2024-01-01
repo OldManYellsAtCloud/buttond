@@ -6,39 +6,36 @@
 #include "volumehandler.h"
 #include "powerhandler.h"
 #include <settingslib.h>
+#include <loglibrary.h>
 
 #define CONF_PATH  "/etc"
 
-std::vector<ButtonHandler> buttonHandlers;
+std::vector<std::jthread> threads;
 
 void prepareToStop(int dummy){
-    for (auto t: buttonHandlers)
-        t.stop();
+    LOG("Stop requested, preparing to go down...");
+
+    for (auto& t: threads)
+        t.request_stop();
 }
 
 int main()
 {
     SettingsLib settings{CONF_PATH};
 
-    auto volumeEventPath = settings.getValue("events", "volume");
-    auto powerEventPath = settings.getValue("events", "power");
-    auto touchScreenInhibitPath = settings.getValue("hw", "ts_inhibit");
+    VolumeHandler vh {&settings};
+    PowerHandler ph {&settings};
 
-    VolumeHandler vh {volumeEventPath};
-    PowerHandler ph {powerEventPath, touchScreenInhibitPath};
-
-    std::thread t1{&VolumeHandler::run, vh};
-    std::thread t2{&PowerHandler::run, ph};
-
-    buttonHandlers.push_back(vh);
-    buttonHandlers.push_back(ph);
+    threads.push_back(std::jthread(&VolumeHandler::run, vh));
+    threads.push_back(std::jthread(&PowerHandler::run, ph));
 
     signal(SIGINT, prepareToStop);
     signal(SIGTERM, prepareToStop);
 
-    t1.join();
-    t2.join();
+    for(auto& t: threads)
+        t.join();
 
+    LOG("Done, byebye");
     return 0;
 }
 

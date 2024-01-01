@@ -45,8 +45,9 @@ void VolumeHandler::volumeUp()
 
 }
 
-VolumeHandler::VolumeHandler(const std::string& filepath)
+VolumeHandler::VolumeHandler(SettingsLib* settings)
 {
+    auto filepath = settings->getValue("events", "volume");
     eventSource = fopen(filepath.c_str(), "r");
     if (!eventSource) {
         ERROR("Could not open {}: {}", filepath, strerror(errno));
@@ -54,7 +55,7 @@ VolumeHandler::VolumeHandler(const std::string& filepath)
     }
 }
 
-void VolumeHandler::run()
+void VolumeHandler::run(std::stop_token stopToken)
 {
     struct pollfd pfd[1];
     pfd[0].fd = fileno(eventSource);
@@ -65,7 +66,7 @@ void VolumeHandler::run()
 
     struct input_event event;
 
-    while (!done){
+    while (!stopToken.stop_requested()){
         poll(pfd, nfds, poll_timeout_ms);
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, eventSource);

@@ -2,6 +2,7 @@
 #define VOLUMEHANDLER_H
 
 #include "buttonhandler.h"
+#include <settingslib.h>
 #include <string>
 
 class VolumeHandler : public ButtonHandler
@@ -13,10 +14,10 @@ private:
     void volumeUp();
 
 public:
-    VolumeHandler(const std::string& filepath);
+    VolumeHandler(SettingsLib* settings);
     ~VolumeHandler(){}
 
-    void run();
+    void run(std::stop_token stopToken);
 };
 
 #endif // VOLUMEHANDLER_H
