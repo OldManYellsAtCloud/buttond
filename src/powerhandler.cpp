@@ -7,10 +7,12 @@
 #include <unistd.h>
 #include <linux/input.h>
 #include <linux/input-event-codes.h>
+#include <loglibrary.h>
 
 void PowerHandler::turnOn()
 {
-    /*std::cout << "turn on" << std::endl;*/
+    DEBUG("Turn on screen");
+
     fwrite(TURN_ON_TOUCHSCREEN, 1, sizeof(TURN_ON_TOUCHSCREEN) / sizeof(TURN_ON_TOUCHSCREEN[0]), touchScreen);
     fwrite(SWITCH_ON_BACKLIGHT, 1, sizeof(SWITCH_ON_BACKLIGHT) / sizeof(SWITCH_ON_BACKLIGHT[0]), backlight);
     fwrite(HIGHEST_CPU_FREQUENCY, 1, sizeof(HIGHEST_CPU_FREQUENCY) / sizeof(HIGHEST_CPU_FREQUENCY[0]), cpuFrequency);
@@ -28,7 +30,7 @@ void PowerHandler::turnOn()
 
 void PowerHandler::turnOff()
 {
-    /*std::cout << "turn off" << std::endl;*/
+    DEBUG("Turn off screen");
     fwrite(TURN_OFF_TOUCHSCREEN, 1, sizeof(TURN_OFF_TOUCHSCREEN) / sizeof(TURN_OFF_TOUCHSCREEN[0]), touchScreen);
     fwrite(SWITCH_OFF_BACKLIGHT, 1, sizeof(SWITCH_OFF_BACKLIGHT) / sizeof(SWITCH_OFF_BACKLIGHT[0]), backlight);
     fwrite(LOWEST_CPU_FREQUENCY, 1, sizeof(LOWEST_CPU_FREQUENCY) / sizeof(LOWEST_CPU_FREQUENCY[0]), cpuFrequency);
@@ -48,13 +50,13 @@ PowerHandler::PowerHandler(const std::string& filepath)
 {
     eventSource = fopen(filepath.c_str(), "r");
     if (!eventSource) {
-        /*std::cerr << "Could not open " << filepath << ": " << strerror(errno) << std::endl;*/
+        ERROR("Could not open {}: {}", filepath, strerror(errno));
         exit(1);
     }
 
     FILE* cpu_governor = fopen(CPU_GOVERNOR_PATH, "r+");
     if (!cpu_governor) {
-        /*std::cerr << "Could not open " << CPU_GOVERNOR_PATH << ": " << strerror(errno) << std::endl;*/
+        ERROR("Could not open {}: {}", CPU_GOVERNOR_PATH, strerror(errno));
     }
 
     fwrite(USERSPACE_GOVERNOR, 1, 10, cpu_governor);
@@ -87,9 +89,7 @@ void PowerHandler::run()
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, eventSource);
 
-            /*std::cout << "Power event - code: " << event.code
-                      << ", type: " << event.type
-                      << ", value: " << event.value << std::endl;*/
+            DEBUG("Power event - code: {}, type: {}, value: {]", event.code, event.type, event.value);
 
             if (event.type == EV_KEY && event.code == KEY_POWER && event.value == 1) {
                 switch (current_state){

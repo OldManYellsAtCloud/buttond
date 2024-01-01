@@ -7,25 +7,23 @@
 #include <linux/input.h>
 #include <linux/input-event-codes.h>
 #include <unistd.h>
-
+#include <loglibrary.h>
 
 void VolumeHandler::volumeDown()
 {
     auto new_pid = fork();
 
     if (new_pid < 0) {
-        /*std::cerr << "Coult not fork! Exiting" << std::endl;*/
+        ERROR("Could not fork! Exiting");
         exit(1);
     }
 
 
     if (new_pid == 0){
-        /*std::cout << "Volume dowxxxn by 5%" << std::endl;*/
+        DEBUG("Volume down by 5%");
         if (execlp("pactl", "pactl", "set-sink-volume", "0", "-5%", (char *) NULL) == -1){
-            /*std::cerr << "Could not lower the volume: " << strerror(errno) << std::endl;*/
+            ERROR("Could not lower the volume: {}", strerror(errno));
         }
-
-        /*std::cout << "this should not be seen" << std::endl;*/
     }
 }
 
@@ -34,17 +32,15 @@ void VolumeHandler::volumeUp()
     auto new_pid = fork();
 
     if (new_pid < 0) {
-        /*std::cerr << "Coult not fork! Exiting" << std::endl;*/
+        ERROR("Could not fork! Exiting.");
         exit(1);
     }
 
     if (new_pid == 0){
-        /*std::cout << "Volume up by 5%" << std::endl;*/
+        DEBUG("Volume up to 5%");
         if (execlp("pactl", "pactl", "set-sink-volume", "0", "+5%", (char *) NULL) == -1){
-            /*std::cerr << "Could not increase the volume: " << strerror(errno) << std::endl;*/
+            ERROR("Could not increase the volume: {}", strerror(errno));
         }
-
-        /*std::cout << "this should not be seen" << std::endl;*/
     }
 
 }
@@ -53,7 +49,7 @@ VolumeHandler::VolumeHandler(const std::string& filepath)
 {
     eventSource = fopen(filepath.c_str(), "r");
     if (!eventSource) {
-        /*std::cerr << "Could not open " << filepath << ": " << strerror(errno) << std::endl;*/
+        ERROR("Could not open {}: {}", filepath, strerror(errno));
         exit(1);
     }
 }
@@ -74,10 +70,9 @@ void VolumeHandler::run()
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, eventSource);
 
-            /*std::cout << "Volume " << (event.code == KEY_VOLUMEDOWN ? "down " : "up ")
-                      << (event.type == EV_KEY ? "pressed." : "released.")
-                      << " Value: " << event.value
-                      << ", time: " << event.time.tv_sec << "." << event.time.tv_usec << std::endl;*/
+            DEBUG("Volume {} {}. Value: {}, time: {}.{}", (event.code == KEY_VOLUMEDOWN ? "down " : "up "),
+                  (event.type == EV_KEY ? "pressed." : "released."),
+                  event.value, event.time.tv_sec, event.time.tv_usec);
 
             if (event.type == EV_KEY && event.value == 1) {
                 if (event.code == KEY_VOLUMEDOWN) {
