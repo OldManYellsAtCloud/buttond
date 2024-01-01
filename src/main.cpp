@@ -22,9 +22,10 @@ int main()
 
     auto volumeEventPath = settings.getValue("events", "volume");
     auto powerEventPath = settings.getValue("events", "power");
+    auto touchScreenInhibitPath = settings.getValue("hw", "ts_inhibit");
 
     VolumeHandler vh {volumeEventPath};
-    PowerHandler ph {powerEventPath};
+    PowerHandler ph {powerEventPath, touchScreenInhibitPath};
 
     std::thread t1{&VolumeHandler::run, vh};
     std::thread t2{&PowerHandler::run, ph};

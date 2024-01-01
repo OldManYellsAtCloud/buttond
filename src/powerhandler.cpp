@@ -46,11 +46,11 @@ void PowerHandler::turnOff()
     current_state = State::SCREEN_OFF;
 }
 
-PowerHandler::PowerHandler(const std::string& filepath)
+PowerHandler::PowerHandler(const std::string& buttonPath, const std::string& tsInhibitPath)
 {
-    eventSource = fopen(filepath.c_str(), "r");
+    eventSource = fopen(buttonPath.c_str(), "r");
     if (!eventSource) {
-        ERROR("Could not open {}: {}", filepath, strerror(errno));
+        ERROR("Could not open {}: {}", buttonPath, strerror(errno));
         exit(1);
     }
 
@@ -62,12 +62,14 @@ PowerHandler::PowerHandler(const std::string& filepath)
     fwrite(USERSPACE_GOVERNOR, 1, 10, cpu_governor);
     fclose(cpu_governor);
 
-    touchScreen = fopen(INHIBIT_TOUCHSCREEN_PATH, "r+");
+    touchScreen = fopen(tsInhibitPath.c_str(), "r+");
     backlight = fopen(BACKLIGHT_BL_PATH, "r+");
     cpuFrequency = fopen(CPU_FREQUENCY_PATH, "r+");
 
     for (uint8_t i {}; i < 3; ++i)
         cpuCoreList[i] = fopen(CPU_CORE_LIST[i], "r+");
+
+
 }
 
 void PowerHandler::run()
@@ -89,7 +91,7 @@ void PowerHandler::run()
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, eventSource);
 
-            DEBUG("Power event - code: {}, type: {}, value: {]", event.code, event.type, event.value);
+            DEBUG("Power event - code: {}, type: {}, value: {}", event.code, event.type, event.value);
 
             if (event.type == EV_KEY && event.code == KEY_POWER && event.value == 1) {
                 switch (current_state){

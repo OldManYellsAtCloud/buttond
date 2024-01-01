@@ -4,6 +4,15 @@
 
 #include <string>
 
+#define TURN_OFF_TOUCHSCREEN "1"
+#define TURN_ON_TOUCHSCREEN  "0"
+
+#define SWITCH_OFF_BACKLIGHT "4"
+#define SWITCH_ON_BACKLIGHT  "0"
+
+#define TURN_OFF_CPU_CORE    "1"
+#define TURN_ON_CPU_CORE     "0"
+
 enum class State {
     SCREEN_ON, SCREEN_OFF
 };
@@ -24,13 +33,7 @@ private:
 
     State current_state {State::SCREEN_ON};
 
-    const char* INHIBIT_TOUCHSCREEN_PATH {"/sys/devices/platform/soc/1c2ac00.i2c/i2c-0/0-005d/input/input3/inhibited"};
-    const char* TURN_OFF_TOUCHSCREEN {"1"};
-    const char* TURN_ON_TOUCHSCREEN {"0"};
-
     const char* BACKLIGHT_BL_PATH {"/sys/class/backlight/backlight/bl_power"};
-    const char* SWITCH_OFF_BACKLIGHT {"4"};
-    const char* SWITCH_ON_BACKLIGHT {"0"};
 
     const char* CPU_GOVERNOR_PATH {"/sys/devices/system/cpu/cpufreq/policy0/scaling_governor"};
     const char* CPU_FREQUENCY_PATH {"/sys/devices/system/cpu/cpufreq/policy0/scaling_setspeed"};
@@ -38,9 +41,6 @@ private:
     const char* USERSPACE_GOVERNOR {"userspace"};
     const char* LOWEST_CPU_FREQUENCY {"648000"};
     const char* HIGHEST_CPU_FREQUENCY {"1152000"};
-
-    const char* TURN_OFF_CPU_CORE {"0"};
-    const char* TURN_ON_CPU_CORE {"1"};
 
     const char* CPU_CORE_LIST[3] {
         "/sys/devices/system/cpu/cpu1/online",
@@ -50,7 +50,7 @@ private:
 
 
 public:
-    PowerHandler(const std::string& filepath);
+    PowerHandler(const std::string& buttonPath, const std::string& tsInhibitPath);
     ~PowerHandler(){}
 
     void run();
