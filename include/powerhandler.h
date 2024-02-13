@@ -1,7 +1,9 @@
 #ifndef POWERHANDLER_H
 #define POWERHANDLER_H
+
 #include "buttonhandler.h"
-#include "settingslib.h"
+#include <functional>
+#include <settingslib.h>
 
 #include <string>
 
@@ -49,9 +51,11 @@ private:
         "/sys/devices/system/cpu/cpu3/online"
     };
 
+    std::function<void(bool)> dbusHandler_;
+
 
 public:
-    PowerHandler(SettingsLib* settings);
+    PowerHandler(SettingsLib* settings, std::function<void(bool)> dbusHandler) ;
     ~PowerHandler(){}
 
     void run(std::stop_token stopToken);

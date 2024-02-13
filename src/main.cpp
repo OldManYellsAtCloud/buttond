@@ -5,6 +5,8 @@
 #include <linux/input.h>
 #include "volumehandler.h"
 #include "powerhandler.h"
+#include "dbusmanager.h"
+
 #include <settingslib.h>
 #include <loglibrary.h>
 
@@ -21,10 +23,15 @@ void prepareToStop(int dummy){
 
 int main()
 {
+
+    DbusManager dbusManager{};
+
+    auto signalHandler = [&](bool state){dbusManager.sendSignal(state);};
+
     SettingsLib settings{CONF_PATH};
 
     VolumeHandler vh {&settings};
-    PowerHandler ph {&settings};
+    PowerHandler ph (&settings, signalHandler);
 
     threads.push_back(std::jthread(&VolumeHandler::run, vh));
     threads.push_back(std::jthread(&PowerHandler::run, ph));
