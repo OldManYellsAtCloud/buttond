@@ -8,6 +8,7 @@
 #include <linux/input.h>
 #include <linux/input-event-codes.h>
 #include <loglibrary.h>
+#include <sdbus-c++/sdbus-c++.h>
 
 void PowerHandler::turnOn()
 {
@@ -26,6 +27,7 @@ void PowerHandler::turnOn()
     fflush(touchScreen);
     fflush(cpuFrequency);
     current_state = State::SCREEN_ON;
+    dbusHandler_(true);
 }
 
 void PowerHandler::turnOff()
@@ -44,10 +46,13 @@ void PowerHandler::turnOff()
     fflush(cpuFrequency);
 
     current_state = State::SCREEN_OFF;
+    dbusHandler_(false);
 }
 
-PowerHandler::PowerHandler(SettingsLib* settings)
+PowerHandler::PowerHandler(SettingsLib* settings, std::function<void(bool)> dbusHandler)
 {
+    dbusHandler_ = dbusHandler;
+
     auto buttonPath = settings->getValue("events", "power");
     auto tsInhibitPath = settings->getValue("hw", "ts_inhibit");
 
@@ -71,8 +76,6 @@ PowerHandler::PowerHandler(SettingsLib* settings)
 
     for (uint8_t i {}; i < 3; ++i)
         cpuCoreList[i] = fopen(CPU_CORE_LIST[i], "r+");
-
-
 }
 
 void PowerHandler::run(std::stop_token stopToken)
