@@ -3,9 +3,9 @@
 
 #include <sdbus-c++/sdbus-c++.h>
 
-#define DBUS_SERVICE_NAME   "sgy.pine.screenLock"
-#define DBUS_OBJECT_PATH    "/sgy/pine/screenLock"
-#define DBUS_INTERFACE_NAME "sgy.pine.screenLock"
+#define DBUS_SERVICE_NAME   "sgy.pine.buttond"
+#define DBUS_OBJECT_PATH    "/sgy/pine/buttond"
+#define DBUS_INTERFACE_NAME "sgy.pine.buttond"
 
 class DbusManager
 {
