@@ -10,11 +10,6 @@ find_package(LogLibrary)
 find_package(sdbus-c++)
 
 add_executable(buttons src/main.cpp
-                src/volumehandler.cpp
-                include/volumehandler.h
-                src/powerhandler.cpp
-                include/powerhandler.h
-                include/buttonhandler.h
                 include/dbusmanager.h src/dbusmanager.cpp)
 
 target_include_directories(buttons PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
