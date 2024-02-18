@@ -3,9 +3,16 @@
 
 #include <sdbus-c++/sdbus-c++.h>
 
-#define DBUS_SERVICE_NAME   "org.gspine.display"
-#define DBUS_OBJECT_PATH    "/sgy/pine/display"
-#define DBUS_INTERFACE_NAME "org.gspine.display"
+#define DBUS_SERVICE_NAME   "org.gspine.button"
+#define DBUS_OBJECT_PATH    "/org/gspine/button"
+#define DBUS_INTERFACE_NAME "org.gspine.button"
+
+#define POWER_BUTTON_PRESS      "powerButtonPress"
+#define POWER_BUTTON_RELEASE    "powerButtonRelease"
+#define VOLUME_DOWN_PRESS       "volumeDownPress"
+#define VOLUME_DOWN_RELEASE     "volumeDownRelease"
+#define VOLUME_UP_PRESS         "volumeUpPress"
+#define VOLUME_UP_RELEASE       "volumeUpRelease"
 
 class DbusManager
 {
@@ -15,7 +22,7 @@ private:
 public:
     DbusManager();
     ~DbusManager();
-    void sendSignal(bool state);
+    void sendSignal(std::string signalName);
 
 };
 
