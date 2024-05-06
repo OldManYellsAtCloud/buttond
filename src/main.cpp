@@ -43,7 +43,7 @@ void powerButtonLoop(std::stop_token st, SettingsLib* settings, DbusManager* dbu
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, eventSource);
 
-            DEBUG("Power event - code: {}, type: {}, value: {}", event.code, event.type, event.value);
+            DBG("Power event - code: {}, type: {}, value: {}", event.code, event.type, event.value);
 
             if (event.type == EV_KEY && event.code == KEY_POWER) {
                 if (event.value == 1){
@@ -78,7 +78,7 @@ void volumeButtonLoop(std::stop_token st, SettingsLib* settings, DbusManager* db
         if (pfd[0].revents & POLLIN) {
             fread(&event, sizeof(input_event), 1, eventSource);
 
-            DEBUG("Volume {} {}. Value: {}, time: {}.{}", (event.code == KEY_VOLUMEDOWN ? "down " : "up "),
+            DBG("Volume {} {}. Value: {}, time: {}.{}", (event.code == KEY_VOLUMEDOWN ? "down " : "up "),
                   (event.type == EV_KEY ? "pressed." : "released."),
                   event.value, event.time.tv_sec, event.time.tv_usec);
 
