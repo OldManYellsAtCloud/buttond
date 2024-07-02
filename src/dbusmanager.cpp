@@ -2,25 +2,29 @@
 
 void DbusManager::sendSignal(std::string signalName)
 {
-    auto signal = dbusObject->createSignal(DBUS_INTERFACE_NAME, signalName);
+    sdbus::InterfaceName interfaceName{DBUS_INTERFACE_NAME};
+    sdbus::SignalName _signalName{signalName};
+    auto signal = dbusObject->createSignal(interfaceName, _signalName);
     dbusObject->emitSignal(signal);
 }
 
 DbusManager::DbusManager()
 {
-    dbusConnection = sdbus::createSystemBusConnection(DBUS_SERVICE_NAME);
-    dbusObject = sdbus::createObject(*dbusConnection, DBUS_OBJECT_PATH);
+    sdbus::ServiceName serviceName{DBUS_SERVICE_NAME};
+    dbusConnection = sdbus::createBusConnection(serviceName);
 
-    dbusObject->registerSignal(DBUS_INTERFACE_NAME, POWER_BUTTON_PRESS, "");
-    dbusObject->registerSignal(DBUS_INTERFACE_NAME, POWER_BUTTON_RELEASE, "");
+    sdbus::ObjectPath objectPath{DBUS_OBJECT_PATH};
+    dbusObject = sdbus::createObject(*dbusConnection, std::move(objectPath));
 
-    dbusObject->registerSignal(DBUS_INTERFACE_NAME, VOLUME_DOWN_PRESS, "");
-    dbusObject->registerSignal(DBUS_INTERFACE_NAME, VOLUME_DOWN_RELEASE, "");
+    sdbus::InterfaceName interfaceName{DBUS_INTERFACE_NAME};
 
-    dbusObject->registerSignal(DBUS_INTERFACE_NAME, VOLUME_UP_PRESS, "");
-    dbusObject->registerSignal(DBUS_INTERFACE_NAME, VOLUME_UP_RELEASE, "");
+    dbusObject->addVTable(sdbus::SignalVTableItem{sdbus::MethodName{POWER_BUTTON_PRESS}, {}, {}}).forInterface(interfaceName);
+    dbusObject->addVTable(sdbus::SignalVTableItem{sdbus::MethodName{POWER_BUTTON_RELEASE}, {}, {}}).forInterface(interfaceName);
+    dbusObject->addVTable(sdbus::SignalVTableItem{sdbus::MethodName{VOLUME_DOWN_PRESS}, {}, {}}).forInterface(interfaceName);
+    dbusObject->addVTable(sdbus::SignalVTableItem{sdbus::MethodName{VOLUME_DOWN_RELEASE}, {}, {}}).forInterface(interfaceName);
+    dbusObject->addVTable(sdbus::SignalVTableItem{sdbus::MethodName{VOLUME_UP_PRESS}, {}, {}}).forInterface(interfaceName);
+    dbusObject->addVTable(sdbus::SignalVTableItem{sdbus::MethodName{VOLUME_UP_RELEASE}, {}, {}}).forInterface(interfaceName);
 
-    dbusObject->finishRegistration();
     dbusConnection->enterEventLoopAsync();
 }
 
